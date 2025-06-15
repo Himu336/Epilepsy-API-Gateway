@@ -41,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   User.init({
-    username: {
+    email: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
@@ -50,10 +50,34 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: true, 
+    },
+    age: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    gender: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    mobile: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     role: {
       type: DataTypes.ENUM('patient', 'doctor', 'asha'),
       allowNull: false,
       defaultValue: 'patient',
+    },
+    ashaId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    docId: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
   }, {
     sequelize,
