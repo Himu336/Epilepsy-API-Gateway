@@ -29,20 +29,11 @@ app.use(cors());
 app.use('/', authRoutes);
 
 // Generic proxy setup with request transformation
-const microserviceProxy = (allowedRoles = []) => createProxyMiddleware({
+const microserviceProxy = () => createProxyMiddleware({
   target: config.MICROSERVICE_URL,
   changeOrigin: true,
   pathRewrite: {
-    '^/api': '/api', // retain /api prefix when forwarding to microservice
-  },
-  onProxyReq: (proxyReq, req, res) => {
-    // Forward user role and ID to the microservice for fine-grained authorization
-    if (req.user && req.user.role) {
-      proxyReq.setHeader('X-User-Role', req.user.role);
-    }
-    if (req.user && req.user.userId) {
-      proxyReq.setHeader('X-User-Id', req.user.userId.toString()); // Ensure it's a string
-    }
+    '^/gatewayApi': '/api', // retain /api prefix when forwarding to microservice
   },
   onError: (err, req, res) => {
     console.error('Proxy error:', err);
@@ -50,28 +41,7 @@ const microserviceProxy = (allowedRoles = []) => createProxyMiddleware({
   },
 });
 
-// Protected Microservice Routes with RBAC
-// Checklists Data
-app.get('/api/getChecklistsAll', authenticateToken, authorizeRoles(['doctor', 'asha']), microserviceProxy());
-app.get('/api/getChecklistById/:id', authenticateToken, authorizeRoles(['patient', 'doctor', 'asha']), microserviceProxy());
-app.post('/api/createChecklist', authenticateToken, authorizeRoles(['doctor', 'asha']), microserviceProxy());
-
-// Patients Data
-app.get('/api/getPatientsAll', authenticateToken, authorizeRoles(['doctor']), microserviceProxy());
-app.get('/api/getPatientById/:id', authenticateToken, authorizeRoles(['patient', 'doctor', 'asha']), microserviceProxy());
-app.post('/api/createPatient', authenticateToken, authorizeRoles(['doctor']), microserviceProxy());
-app.put('/api/updatePatientById/:id', authenticateToken, authorizeRoles(['doctor']), microserviceProxy());
-app.delete('/api/deletePatientById/:id', authenticateToken, authorizeRoles(['doctor']), microserviceProxy());
-
-// ASHA Data (Assuming ASHA-specific endpoints or specific views)
-// If there are other ASHA endpoints, add them here.
-
-// Centralized Data System
-app.get('/api/getHeatmap', authenticateToken, authorizeRoles(['doctor']), microserviceProxy());
-
-// Fallback for any other /api routes that are authenticated but don't have specific role checks
-// This should be at the very end of /api routes that need authentication
-app.use('/api', authenticateToken, microserviceProxy());
+app.use('/gatewayApi', authenticateToken, microserviceProxy());
 
 
 // Basic test route
