@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: epilepsy-api-gateway
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free # or 'starter', 'standard', etc.
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        value: YOUR_VERY_STRONG_RANDOM_SECRET_KEY # <<< IMPORTANT: REPLACE THIS WITH A UNIQUE, STRONG SECRET!
+      - key: DB_NAME
+        value: railway
+      - key: DB_USER
+        value: root
+      - key: DB_PASS
+        value: qnWzCAxdfUEFcnlKJMsvnIoABxUSQhsU
+      - key: DB_HOST
+        value: mainline.proxy.rlwy.net
+      - key: DB_PORT
+        value: 13991
+      - key: MICROSERVICE_URL
+        value: https://epilepsy-form-service.onrender.com 
