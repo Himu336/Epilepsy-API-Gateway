@@ -1,6 +1,6 @@
 module.exports = {
   JWT_SECRET: process.env.JWT_SECRET || 'supersecretjwtkey',
-  MICROSERVICE_URL: process.env.MICROSERVICE_URL || 'http://localhost:8080', // Replace with your Render microservice URL
+  MICROSERVICE_URL: process.env.MICROSERVICE_URL || 'https://epilepsy-form-service.onrender.com', // Replace with your Render microservice URL
   database: {
     development: {
       username: process.env.DB_USER || 'root',

@@ -29,17 +29,20 @@ app.use(cors());
 app.use('/', authRoutes);
 
 // Generic proxy setup with request transformation
-const microserviceProxy = () => createProxyMiddleware({
-  target: config.MICROSERVICE_URL,
-  changeOrigin: true,
-  pathRewrite: {
-    '^/gatewayApi': '/api', // retain /api prefix when forwarding to microservice
-  },
-  onError: (err, req, res) => {
-    console.error('Proxy error:', err);
-    res.status(500).json({ message: 'Proxy service unavailable or error.' });
-  },
-});
+const microserviceProxy = () => {
+  console.log('Proxying requests to:', config.MICROSERVICE_URL); // Diagnostic log
+  return createProxyMiddleware({
+    target: config.MICROSERVICE_URL,
+    changeOrigin: true,
+    pathRewrite: {
+      '^/gatewayApi': '/api', // retain /api prefix when forwarding to microservice
+    },
+    onError: (err, req, res) => {
+      console.error('Proxy error:', err);
+      res.status(500).json({ message: 'Proxy service unavailable or error.' });
+    },
+  });
+};
 
 app.use('/gatewayApi', authenticateToken, microserviceProxy());
 
