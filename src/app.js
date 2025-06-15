@@ -25,6 +25,19 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
+// NEW: Incoming request logger
+app.use((req, res, next) => {
+  console.log('--- Incoming API Gateway Request ---');
+  console.log('Method:', req.method);
+  console.log('URL:', req.url);
+  console.log('Headers:', req.headers);
+  if (req.body) {
+    console.log('Body:', JSON.stringify(req.body, null, 2));
+  }
+  console.log('-------------------------------------');
+  next();
+});
+
 // Auth Routes (Publicly accessible for signup/login)
 app.use('/', authRoutes);
 
@@ -36,6 +49,23 @@ const microserviceProxy = () => {
     changeOrigin: true,
     pathRewrite: {
       '^/gatewayApi': '/api', // retain /api prefix when forwarding to microservice
+    },
+    onProxyReq: (proxyReq, req, res) => {
+      console.log('onProxyReq: Forwarding request to Microservice.');
+      console.log('onProxyReq: Request Method:', req.method);
+      console.log('onProxyReq: Request URL:', proxyReq.path);
+      console.log('onProxyReq: Request Headers being sent:', proxyReq.getHeaders());
+
+      // For POST/PUT requests, ensure the body is forwarded correctly
+      if (req.body) {
+        let bodyData = JSON.stringify(req.body);
+        console.log('onProxyReq: Request Body (JSON stringified):', bodyData);
+        proxyReq.setHeader('Content-Type', 'application/json');
+        proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+        // Stream the content to the proxy request
+        proxyReq.write(bodyData);
+        proxyReq.end();
+      }
     },
     onError: (err, req, res) => {
       console.error('Proxy error:', err);
