@@ -18,4 +18,17 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-module.exports = authenticateToken; 
+const authorizeRoles = (allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user || !req.user.role) {
+      return res.status(401).json({ message: 'Unauthorized: User role not found.' });
+    }
+
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: `Forbidden: Only ${allowedRoles.join(', ')} can access this resource.` });
+    }
+    next();
+  };
+};
+
+module.exports = { authenticateToken, authorizeRoles }; 

@@ -5,7 +5,7 @@ const db = require('../models'); // Import the Sequelize models
 const User = db.User; // Access the User model
 
 const authService = {
-  signup: async (username, password) => {
+  signup: async (username, password, role) => {
     if (!username || !password) {
       throw new Error('Username and password are required');
     }
@@ -18,8 +18,8 @@ const authService = {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Create new user in the database
-    const newUser = await User.create({ username, password: hashedPassword });
+    // Create new user in the database, including the role if provided
+    const newUser = await User.create({ username, password: hashedPassword, role: role });
     return { message: 'User created successfully', userId: newUser.id };
   },
 
@@ -39,7 +39,8 @@ const authService = {
       throw new Error('Invalid credentials');
     }
 
-    const token = jwt.sign({ username: user.username, userId: user.id }, config.JWT_SECRET, { expiresIn: '1h' });
+    // Include user role in the JWT payload
+    const token = jwt.sign({ username: user.username, userId: user.id, role: user.role }, config.JWT_SECRET, { expiresIn: '1h' });
     return { token };
   },
 };

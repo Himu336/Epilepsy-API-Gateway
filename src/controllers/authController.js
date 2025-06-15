@@ -3,8 +3,8 @@ const authService = require('../services/authService');
 const authController = {
   signup: async (req, res) => {
     try {
-      const { username, password } = req.body;
-      const result = await authService.signup(username, password);
+      const { username, password, role } = req.body;
+      const result = await authService.signup(username, password, role);
       res.status(201).json(result);
     } catch (error) {
       if (error.message === 'Username and password are required') {
